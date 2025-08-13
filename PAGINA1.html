@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infografía: Análisis de IMC</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .infographic-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+        .header {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+        .card-large {
+            grid-column: span 6;
+        }
+        .card-medium {
+            grid-column: span 4;
+        }
+        .card-small {
+            grid-column: span 3;
+        }
+        .card-full {
+            grid-column: 1 / -1;
+        }
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+            margin-top: 0;
+        }
+        .chart-container {
+            position: relative;
+            height: 100%;
+            min-height: 250px;
+        }
+        .bmi-categories {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .category {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+        }
+        .underweight {
+            background-color: #3498db;
+        }
+        .normal {
+            background-color: #2ecc71;
+        }
+        .overweight {
+            background-color: #f39c12;
+        }
+        .obese {
+            background-color: #e74c3c;
+        }
+        .formula {
+            font-family: 'Courier New', monospace;
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 1.2em;
+            margin: 15px 0;
+            border-left: 4px solid #3498db;
+        }
+        .calculator {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .calculator input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        .calculator button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+        .calculator button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .data-point {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .data-point h3 {
+            margin-top: 0;
+            color: #3498db;
+        }
+        .regression-equation {
+            font-size: 1.1em;
+            text-align: center;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        @media (max-width: 768px) {
+            .card-large, .card-medium, .card-small {
+                grid-column: 1 / -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="infographic-container">
+        <div class="header">
+            <h1>Análisis de IMC y Regresión Lineal</h1>
+            <p>Visualización interactiva de la relación entre el Índice de Masa Corporal y categorías de peso</p>
+        </div>
+
+        <!-- Sección 1: Qué es el IMC -->
+        <div class="card card-large">
+            <h2>¿Qué es el IMC?</h2>
+            <p>El Índice de Masa Corporal (IMC) es una medida que relaciona el peso con la estatura para evaluar el estado nutricional de una persona.</p>
+            
+            <div class="formula">
+                IMC = peso (kg) / (estatura (m))²
+            </div>
+            
+            <p>Esta medida es ampliamente utilizada por profesionales de la salud para identificar posibles problemas de peso en adultos.</p>
+        </div>
+
+        <!-- Sección 2: Categorías de IMC -->
+        <div class="card card-large">
+            <h2>Categorías de IMC</h2>
+            <div class="bmi-categories">
+                <div class="category underweight">
+                    <span>Bajo peso: IMC < 18.5</span>
+                </div>
+                <div class="category normal">
+                    <span>Peso saludable: 18.5 ≤ IMC < 25</span>
+                </div>
+                <div class="category overweight">
+                    <span>Sobrepeso: 25 ≤ IMC < 30</span>
+                </div>
+                <div class="category obese">
+                    <span>Obesidad: IMC ≥ 30</span>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="distributionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Sección 3: Calculadora -->
+        <div class="card card-medium">
+            <h2>Calculadora de IMC</h2>
+            <div class="calculator">
+                <label for="infographic-weight">Peso (kg):</label>
+                <input type="number" id="infographic-weight" step="0.1" min="30" max="200" placeholder="Ej. 68.5">
+                
+                <label for="infographic-height">Estatura (m):</label>
+                <input type="number" id="infographic-height" step="0.01" min="1.0" max="2.5" placeholder="Ej. 1.75">
+                
+                <button onclick="calculateInfographicBMI()">Calcular mi IMC</button>
+                
+                <div id="infographic-result" class="result" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Sección 4: Ejemplo de datos -->
+        <div class="card card-medium">
+            <h2>Ejemplo de Datos</h2>
+            <div class="data-point">
+                <h3>Dato aleatorio generado:</h3>
+                <p id="random-data-point"></p>
+            </div>
+            
+            <p>Se generaron 100 puntos de datos aleatorios con:</p>
+            <ul>
+                <li>Estaturas entre 1.5m y 1.9m</li>
+                <li>Pesos entre 45kg y 100kg</li>
+            </ul>
+        </div>
+
+        <!-- Sección 5: Regresión Lineal -->
+        <div class="card card-full">
+            <h2>Modelo de Regresión Lineal</h2>
+            <p>Se creó un modelo para predecir la categoría de peso (1-4) basado en el valor del IMC:</p>
+            
+            <div class="regression-equation" id="regression-equation">
+                Nivel de peso = 0.1239 × IMC - 0.7682
+            </div>
+            
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="regressionChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Sección 6: Interpretación -->
+        <div class="card card-full">
+            <h2>Interpretación de Resultados</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div>
+                    <h3>Distribución de IMC</h3>
+                    <p>El gráfico muestra cómo se distribuyen los 100 casos generados aleatoriamente en las diferentes categorías de peso.</p>
+                    <p>En una población real, esperaríamos una distribución diferente según factores demográficos.</p>
+                </div>
+                <div>
+                    <h3>Modelo de Regresión</h3>
+                    <p>La línea roja representa la relación lineal entre el IMC y la categoría de peso asignada.</p>
+                    <p>El modelo muestra que a mayor IMC, mayor es la categoría de peso, como era de esperarse.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos simulados basados en el análisis Python
+        const bmiData = Array.from({length: 100}, () => {
+            const height = 1.5 + Math.random() * 0.4;
+            const weight = 45 + Math.random() * 55;
+            const bmi = weight / (height * height);
+            let level;
+            if (bmi < 18.5) level = 1;
+            else if (bmi < 25) level = 2;
+            else if (bmi < 30) level = 3;
+            else level = 4;
+            return { height, weight, bmi, level };
+        });
+
+        // Mostrar un dato aleatorio
+        const randomPoint = bmiData[Math.floor(Math.random() * bmiData.length)];
+        document.getElementById('random-data-point').innerHTML = `
+            Estatura: ${randomPoint.height.toFixed(2)}m<br>
+            Peso: ${randomPoint.weight.toFixed(1)}kg<br>
+            IMC: ${randomPoint.bmi.toFixed(1)}<br>
+            Categoría: ${getCategory(randomPoint.bmi)}
+        `;
+
+        // Gráfico de distribución
+        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+        const distributionChart = new Chart(distributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Bajo peso', 'Peso saludable', 'Sobrepeso', 'Obesidad'],
+                datasets: [{
+                    data: [
+                        bmiData.filter(d => d.bmi < 18.5).length,
+                        bmiData.filter(d => d.bmi >= 18.5 && d.bmi < 25).length,
+                        bmiData.filter(d => d.bmi >= 25 && d.bmi < 30).length,
+                        bmiData.filter(d => d.bmi >= 30).length
+                    ],
+                    backgroundColor: [
+                        '#3498db',
+                        '#2ecc71',
+                        '#f39c12',
+                        '#e74c3c'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const percentage = Math.round((value / bmiData.length) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de regresión
+        const regressionCtx = document.getElementById('regressionChart').getContext('2d');
+        const regressionSlope = 0.1239;
+        const regressionIntercept = -0.7682;
+
+        // Preparar datos para regresión
+        const bmis = bmiData.map(d => d.bmi);
+        const levels = bmiData.map(d => d.level);
+
+        // Calcular puntos para la línea de regresión
+        const minBmi = Math.min(...bmis);
+        const maxBmi = Math.max(...bmis);
+        const regressionLine = [
+            {x: minBmi, y: regressionSlope * minBmi + regressionIntercept},
+            {x: maxBmi, y: regressionSlope * maxBmi + regressionIntercept}
+        ];
+
+        const regressionChart = new Chart(regressionCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Datos reales',
+                        data: bmis.map((bmi, i) => ({x: bmi, y: levels[i]})),
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1,
+                        pointRadius: 6
+                    },
+                    {
+                        label: 'Regresión lineal',
+                        data: regressionLine,
+                        type: 'line',
+                        borderColor: 'rgba(231, 76, 60, 1)',
+                        borderWidth: 3,
+                        fill: false,
+                        pointRadius: 0,
+                        showLine: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'IMC',
+                            font: {
+                                weight: 'bold'
+                            }
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Categoría de peso (1-4)',
+                            font: {
+                                weight: 'bold'
+                            }
+                        },
+                        min: 0.5,
+                        max: 4.5,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                if (context.datasetIndex === 0) {
+                                    return `IMC: ${context.parsed.x.toFixed(1)} - Categoría: ${context.parsed.y}`;
+                                }
+                                return null;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Calculadora
+        function calculateInfographicBMI() {
+            const weight = parseFloat(document.getElementById('infographic-weight').value);
+            const height = parseFloat(document.getElementById('infographic-height').value);
+            
+            if (isNaN(weight) || isNaN(height) || height <= 0) {
+                alert('Por favor ingresa valores válidos para peso y estatura');
+                return;
+            }
+            
+            const bmi = weight / (height * height);
+            const category = getCategory(bmi);
+            const resultElement = document.getElementById('infographic-result');
+            
+            resultElement.innerHTML = `
+                <div style="font-size: 1.5em; margin-bottom: 10px;">Tu IMC: ${bmi.toFixed(1)}</div>
+                <div style="font-size: 1.2em;">Categoría: ${category}</div>
+            `;
+            
+            // Establecer color según categoría
+            if (bmi < 18.5) {
+                resultElement.style.backgroundColor = '#3498db';
+                resultElement.style.color = 'white';
+            } else if (bmi < 25) {
+                resultElement.style.backgroundColor = '#2ecc71';
+                resultElement.style.color = 'white';
+            } else if (bmi < 30) {
+                resultElement.style.backgroundColor = '#f39c12';
+                resultElement.style.color = 'white';
+            } else {
+                resultElement.style.backgroundColor = '#e74c3c';
+                resultElement.style.color = 'white';
+            }
+            
+            resultElement.style.display = 'block';
+        }
+
+        function getCategory(bmi) {
+            if (bmi < 18.5) return 'Bajo peso';
+            if (bmi < 25) return 'Peso saludable';
+            if (bmi < 30) return 'Sobrepeso';
+            return 'Obesidad';
+        }
+    </script>
+</body>
+</html>
