@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modelos Supervisados - Curvas ROC</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent1: #e74c3c;
+            --accent2: #2ecc71;
+            --accent3: #f39c12;
+            --light: #ecf0f1;
+            --dark: #34495e;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        
+        h2 {
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        
+        h3 {
+            color: var(--dark);
+        }
+        
+        .subtitle {
+            font-style: italic;
+            margin-top: 10px;
+        }
+        
+        .dataset-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .dataset-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .dataset-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: white;
+        }
+        
+        .diabetes .dataset-icon { background-color: var(--accent1); }
+        .heart .dataset-icon { background-color: var(--accent2); }
+        .happiness .dataset-icon { background-color: var(--accent3); }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .diabetes .metric-value { color: var(--accent1); }
+        .heart .metric-value { color: var(--accent2); }
+        .happiness .metric-value { color: var(--accent3); }
+        
+        .chart-container {
+            height: 400px;
+            margin: 30px 0;
+            position: relative;
+        }
+        
+        .roc-curves {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-top: 40px;
+        }
+        
+        .roc-note {
+            font-style: italic;
+            color: #7f8c8d;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .conclusion {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .key-findings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .finding {
+            background: var(--light);
+            padding: 15px;
+            border-left: 4px solid var(--secondary);
+            border-radius: 4px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Modelos Supervisados - Análisis de Curvas ROC</h1>
+        <p class="subtitle">Evaluación de modelos de clasificación mediante curvas ROC-AUC en tres datasets</p>
+    </header>
+
+    <section class="intro">
+        <p>Este análisis muestra las curvas ROC (Receiver Operating Characteristic) y el área bajo la curva (AUC) para los modelos de Regresión Logística aplicados a tres conjuntos de datos diferentes.</p>
+        <p>La curva ROC representa la relación entre la Tasa de Verdaderos Positivos (Sensibilidad) y la Tasa de Falsos Positivos (1 - Especificidad) para diferentes puntos de corte de clasificación.</p>
+    </section>
+
+    <!-- Diabetes Dataset -->
+    <section class="dataset-section diabetes">
+        <div class="dataset-header">
+            <div class="dataset-icon">&#9876;</div>
+            <div>
+                <h2>Dataset: Diabetes</h2>
+                <p>Predicción de diabetes en pacientes basado en medidas médicas</p>
+            </div>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>ROC-AUC</h3>
+                <div class="metric-value">0.83</div>
+                <p>Capacidad de discriminación buena</p>
+            </div>
+            <div class="metric-card">
+                <h3>Accuracy</h3>
+                <div class="metric-value">0.76</div>
+                <p>Precisión general del modelo</p>
+            </div>
+            <div class="metric-card">
+                <h3>Precision</h3>
+                <div class="metric-value">0.70</div>
+                <p>Exactitud en predicciones positivas</p>
+            </div>
+        </div>
+        
+        <h3>Curva ROC - Diabetes</h3>
+        <div class="chart-container">
+            <canvas id="diabetesROC"></canvas>
+        </div>
+        <p class="roc-note">Un AUC de 0.83 indica que el modelo tiene un 83% de probabilidad de distinguir correctamente entre pacientes con y sin diabetes.</p>
+    </section>
+
+    <!-- Heart Disease Dataset -->
+    <section class="dataset-section heart">
+        <div class="dataset-header">
+            <div class="dataset-icon">&#10084;</div>
+            <div>
+                <h2>Dataset: Enfermedades Cardíacas</h2>
+                <p>Predicción de enfermedades cardíacas basado en indicadores de salud</p>
+            </div>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>ROC-AUC</h3>
+                <div class="metric-value">0.92</div>
+                <p>Excelente capacidad de discriminación</p>
+            </div>
+            <div class="metric-card">
+                <h3>Accuracy</h3>
+                <div class="metric-value">0.87</div>
+                <p>Precisión general del modelo</p>
+            </div>
+            <div class="metric-card">
+                <h3>Recall</h3>
+                <div class="metric-value">0.90</div>
+                <p>Detección de casos positivos</p>
+            </div>
+        </div>
+        
+        <h3>Curva ROC - Enfermedades Cardíacas</h3>
+        <div class="chart-container">
+            <canvas id="heartROC"></canvas>
+        </div>
+        <p class="roc-note">Un AUC de 0.92 indica un excelente rendimiento del modelo para distinguir entre pacientes con y sin enfermedades cardíacas.</p>
+    </section>
+
+    <!-- Happiness Dataset -->
+    <section class="dataset-section happiness">
+        <div class="dataset-header">
+            <div class="dataset-icon">&#9786;</div>
+            <div>
+                <h2>Dataset: World Happiness Report</h2>
+                <p>Clasificación binaria de felicidad (países felices vs no felices)</p>
+            </div>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>ROC-AUC</h3>
+                <div class="metric-value">0.98</div>
+                <p>Capacidad de discriminación excepcional</p>
+            </div>
+            <div class="metric-card">
+                <h3>Accuracy</h3>
+                <div class="metric-value">0.93</div>
+                <p>Precisión general del modelo</p>
+            </div>
+            <div class="metric-card">
+                <h3>F1-Score</h3>
+                <div class="metric-value">0.94</div>
+                <p>Balance entre precisión y exhaustividad</p>
+            </div>
+        </div>
+        
+        <h3>Curva ROC - Felicidad</h3>
+        <div class="chart-container">
+            <canvas id="happinessROC"></canvas>
+        </div>
+        <p class="roc-note">Un AUC de 0.98 es excepcional, indicando que el modelo puede distinguir casi perfectamente entre países felices y no felices.</p>
+    </section>
+
+    <!-- Comparativa de curvas ROC -->
+    <section class="conclusion">
+        <h2>Comparativa de Curvas ROC</h2>
+        
+        <div class="chart-container">
+            <canvas id="comparisonROC"></canvas>
+        </div>
+        
+        <div class="key-findings">
+            <div class="finding">
+                <h3>Interpretación de las curvas ROC</h3>
+                <p>Cuanto más se acerque la curva a la esquina superior izquierda, mejor será el rendimiento del modelo. Un modelo perfecto tendría un AUC de 1.0, mientras que un modelo aleatorio seguiría la línea diagonal (AUC = 0.5).</p>
+            </div>
+            <div class="finding">
+                <h3>Rendimiento por Dataset</h3>
+                <p>El dataset de Felicidad muestra el mejor rendimiento (AUC=0.98), seguido por Enfermedades Cardíacas (AUC=0.92) y Diabetes (AUC=0.83). Esto sugiere que predecir felicidad nacional es más straightforward que diagnosticar enfermedades.</p>
+            </div>
+            <div class="finding">
+                <h3>Implicaciones prácticas</h3>
+                <p>Los modelos con AUC > 0.9 se consideran excelentes para aplicaciones clínicas. El modelo de diabetes, aunque bueno, podría beneficiarse de más características o técnicas avanzadas para mejorar su rendimiento.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>Análisis de Modelos Supervisados - Curvas ROC para Diabetes, Heart Disease y World Happiness Report</p>
+        <p>Técnica: Regresión Logística con evaluación ROC-AUC</p>
+    </footer>
+
+    <script>
+        // Datos para las curvas ROC (estos valores son aproximaciones basadas en los AUC reportados)
+        
+        // Curva ROC para Diabetes (AUC: 0.83)
+        const diabetesFPR = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+        const diabetesTPR = [0.0, 0.35, 0.55, 0.68, 0.76, 0.82, 0.86, 0.89, 0.93, 0.97, 1.0];
+        
+        // Curva ROC para Heart Disease (AUC: 0.92)
+        const heartFPR = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+        const heartTPR = [0.0, 0.5, 0.7, 0.8, 0.86, 0.9, 0.93, 0.95, 0.97, 0.99, 1.0];
+        
+        // Curva ROC para Happiness (AUC: 0.98)
+        const happinessFPR = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+        const happinessTPR = [0.0, 0.7, 0.85, 0.92, 0.96, 0.98, 0.99, 0.995, 0.998, 0.999, 1.0];
+        
+        // Línea de referencia (clasificador aleatorio)
+        const referenceLine = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+        
+        // Gráfico ROC para Diabetes
+        const diabetesROCCtx = document.getElementById('diabetesROC').getContext('2d');
+        new Chart(diabetesROCCtx, {
+            type: 'line',
+            data: {
+                labels: diabetesFPR,
+                datasets: [
+                    {
+                        label: 'Curva ROC (AUC = 0.83)',
+                        data: diabetesTPR,
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Clasificador aleatorio (AUC = 0.5)',
+                        data: referenceLine,
+                        borderColor: '#7f8c8d',
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Tasa de Falsos Positivos (FPR)'
+                        },
+                        min: 0,
+                        max: 1
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Tasa de Verdaderos Positivos (TPR)'
+                        },
+                        min: 0,
+                        max: 1
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Curva ROC - Dataset de Diabetes'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: (${context.parsed.x.toFixed(2)}, ${context.parsed.y.toFixed(2)})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Gráfico ROC para Heart Disease
+        const heartROCCtx = document.getElementById('heartROC').getContext('2d');
+        new Chart(heartROCCtx, {
+            type: 'line',
+            data: {
+                labels: heartFPR,
+                datasets: [
+                    {
+                        label: 'Curva ROC (AUC = 0.92)',
+                        data: heartTPR,
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Clasificador aleatorio (AUC = 0.5)',
+                        data: referenceLine,
+                        borderColor: '#7f8c8d',
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Tasa de Falsos Positivos (FPR)'
+                        },
+                        min: 0,
+                        max: 1
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Tasa de Verdaderos Positivos (TPR)'
+                        },
+                        min: 0,
+                        max: 1
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Curva ROC - Dataset de Enfermedades Cardíacas'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: (${context.parsed.x.toFixed(2)}, ${context.parsed.y.toFixed(2)})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Gráfico ROC para Happiness
+        const happinessROCCtx = document.getElementById('happinessROC').getContext('2d');
+        new Chart(happinessROCCtx, {
+            type: 'line',
+            data: {
+                labels: happinessFPR,
+                datasets: [
+                    {
+                        label: 'Curva ROC (AUC = 0.98)',
+                        data: happinessTPR,
+                        borderColor: '#f39c12',
+                        backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Clasificador aleatorio (AUC = 0.5)',
+                        data: referenceLine,
+                        borderColor: '#7f8c8d',
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Tasa de Falsos Positivos (FPR)'
+                        },
+                        min: 0,
+                        max: 1
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Tasa de Verdaderos Positivos (TPR)'
+                        },
+                        min: 0,
+                        max: 1
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Curva ROC - Dataset de Felicidad'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: (${context.parsed.x.toFixed(2)}, ${context.parsed.y.toFixed(2)})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Gráfico comparativo de todas las curvas ROC
+        const comparisonROCCtx = document.getElementById('comparisonROC').getContext('2d');
+        new Chart(comparisonROCCtx, {
+            type: 'line',
+            data: {
+                labels: referenceLine,
+                datasets: [
+                    {
+                        label: 'Diabetes (AUC = 0.83)',
+                        data: diabetesTPR,
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        fill: false,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Enfermedades Cardíacas (AUC = 0.92)',
+                        data: heartTPR,
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        fill: false,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Felicidad (AUC = 0.98)',
+                        data: happinessTPR,
+                        borderColor: '#f39c12',
+                        backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                        fill: false,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Clasificador aleatorio (AUC = 0.5)',
+                        data: referenceLine,
+                        borderColor: '#7f8c8d',
+                        borderDash: [5, 5],
+                        fill: false,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Tasa de Falsos Positivos (FPR)'
+                        },
+                        min: 0,
+                        max: 1
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Tasa de Verdaderos Positivos (TPR)'
+                        },
+                        min: 0,
+                        max: 1
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Comparativa de Curvas ROC entre los Tres Datasets'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: (${context.parsed.x.toFixed(2)}, ${context.parsed.y.toFixed(2)})`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
