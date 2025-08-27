@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modelos Supervisados - Curvas ROC</title>
+    <title>Comparativa de Modelos Supervisados</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -113,26 +113,16 @@
         .happiness .metric-value { color: var(--accent3); }
         
         .chart-container {
+            height: 300px;
+            margin: 30px 0;
+        }
+        
+        .roc-container {
             height: 400px;
             margin: 30px 0;
-            position: relative;
         }
         
-        .roc-curves {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 30px;
-            margin-top: 40px;
-        }
-        
-        .roc-note {
-            font-style: italic;
-            color: #7f8c8d;
-            text-align: center;
-            margin-top: 10px;
-        }
-        
-        .conclusion {
+        .comparison-section {
             background: white;
             padding: 25px;
             border-radius: 10px;
@@ -154,6 +144,20 @@
             border-radius: 4px;
         }
         
+        .model-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .model-card {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
         footer {
             text-align: center;
             margin-top: 50px;
@@ -163,7 +167,7 @@
         }
         
         @media (max-width: 768px) {
-            .metrics-grid {
+            .metrics-grid, .model-comparison, .key-findings {
                 grid-template-columns: 1fr;
             }
         }
@@ -171,13 +175,12 @@
 </head>
 <body>
     <header>
-        <h1>Modelos Supervisados - Análisis de Curvas ROC</h1>
-        <p class="subtitle">Evaluación de modelos de clasificación mediante curvas ROC-AUC en tres datasets</p>
+        <h1>Comparativa de Modelos Supervisados</h1>
+        <p class="subtitle">Evaluación de modelos de regresión y clasificación en tres datasets</p>
     </header>
 
     <section class="intro">
-        <p>Este análisis muestra las curvas ROC (Receiver Operating Characteristic) y el área bajo la curva (AUC) para los modelos de Regresión Logística aplicados a tres conjuntos de datos diferentes.</p>
-        <p>La curva ROC representa la relación entre la Tasa de Verdaderos Positivos (Sensibilidad) y la Tasa de Falsos Positivos (1 - Especificidad) para diferentes puntos de corte de clasificación.</p>
+        <p>Este análisis compara el rendimiento de modelos supervisados (Regresión Lineal, Regresión Polinomial y Regresión Logística) en tres conjuntos de datos diferentes, evaluando las métricas clave para cada tipo de modelo.</p>
     </section>
 
     <!-- Diabetes Dataset -->
@@ -190,29 +193,67 @@
             </div>
         </div>
         
+        <h3>Métricas de Regresión</h3>
         <div class="metrics-grid">
             <div class="metric-card">
-                <h3>ROC-AUC</h3>
-                <div class="metric-value">0.83</div>
-                <p>Capacidad de discriminación buena</p>
+                <h4>Regresión Lineal - MSE</h4>
+                <div class="metric-value">0.21</div>
+                <p>Error Cuadrático Medio</p>
             </div>
             <div class="metric-card">
-                <h3>Accuracy</h3>
-                <div class="metric-value">0.76</div>
-                <p>Precisión general del modelo</p>
+                <h4>Regresión Lineal - R²</h4>
+                <div class="metric-value">0.26</div>
+                <p>Coeficiente de Determinación</p>
             </div>
             <div class="metric-card">
-                <h3>Precision</h3>
-                <div class="metric-value">0.70</div>
-                <p>Exactitud en predicciones positivas</p>
+                <h4>Regresión Polinomial - MSE</h4>
+                <div class="metric-value">0.20</div>
+                <p>Error Cuadrático Medio</p>
+            </div>
+            <div class="metric-card">
+                <h4>Regresión Polinomial - R²</h4>
+                <div class="metric-value">0.28</div>
+                <p>Coeficiente de Determinación</p>
             </div>
         </div>
         
-        <h3>Curva ROC - Diabetes</h3>
+        <h3>Métricas de Clasificación (Regresión Logística)</h3>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h4>Accuracy</h4>
+                <div class="metric-value">0.76</div>
+                <p>Precisión General</p>
+            </div>
+            <div class="metric-card">
+                <h4>Precision</h4>
+                <div class="metric-value">0.70</div>
+                <p>Exactitud en Predicciones Positivas</p>
+            </div>
+            <div class="metric-card">
+                <h4>Recall</h4>
+                <div class="metric-value">0.60</div>
+                <p>Sensibilidad</p>
+            </div>
+            <div class="metric-card">
+                <h4>F1-Score</h4>
+                <div class="metric-value">0.65</div>
+                <p>Media Armónica</p>
+            </div>
+            <div class="metric-card">
+                <h4>ROC-AUC</h4>
+                <div class="metric-value">0.83</div>
+                <p>Área bajo la Curva ROC</p>
+            </div>
+        </div>
+        
         <div class="chart-container">
+            <canvas id="diabetesChart"></canvas>
+        </div>
+        
+        <h3>Curva ROC - Diabetes</h3>
+        <div class="roc-container">
             <canvas id="diabetesROC"></canvas>
         </div>
-        <p class="roc-note">Un AUC de 0.83 indica que el modelo tiene un 83% de probabilidad de distinguir correctamente entre pacientes con y sin diabetes.</p>
     </section>
 
     <!-- Heart Disease Dataset -->
@@ -225,29 +266,67 @@
             </div>
         </div>
         
+        <h3>Métricas de Regresión</h3>
         <div class="metrics-grid">
             <div class="metric-card">
-                <h3>ROC-AUC</h3>
-                <div class="metric-value">0.92</div>
-                <p>Excelente capacidad de discriminación</p>
+                <h4>Regresión Lineal - MSE</h4>
+                <div class="metric-value">0.14</div>
+                <p>Error Cuadrático Medio</p>
             </div>
             <div class="metric-card">
-                <h3>Accuracy</h3>
-                <div class="metric-value">0.87</div>
-                <p>Precisión general del modelo</p>
+                <h4>Regresión Lineal - R²</h4>
+                <div class="metric-value">0.42</div>
+                <p>Coeficiente de Determinación</p>
             </div>
             <div class="metric-card">
-                <h3>Recall</h3>
-                <div class="metric-value">0.90</div>
-                <p>Detección de casos positivos</p>
+                <h4>Regresión Polinomial - MSE</h4>
+                <div class="metric-value">0.10</div>
+                <p>Error Cuadrático Medio</p>
+            </div>
+            <div class="metric-card">
+                <h4>Regresión Polinomial - R²</h4>
+                <div class="metric-value">0.58</div>
+                <p>Coeficiente de Determinación</p>
             </div>
         </div>
         
-        <h3>Curva ROC - Enfermedades Cardíacas</h3>
+        <h3>Métricas de Clasificación (Regresión Logística)</h3>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h4>Accuracy</h4>
+                <div class="metric-value">0.87</div>
+                <p>Precisíón General</p>
+            </div>
+            <div class="metric-card">
+                <h4>Precision</h4>
+                <div class="metric-value">0.88</div>
+                <p>Exactitud en Predicciones Positivas</p>
+            </div>
+            <div class="metric-card">
+                <h4>Recall</h4>
+                <div class="metric-value">0.90</div>
+                <p>Sensibilidad</p>
+            </div>
+            <div class="metric-card">
+                <h4>F1-Score</h4>
+                <div class="metric-value">0.89</div>
+                <p>Media Armónica</p>
+            </div>
+            <div class="metric-card">
+                <h4>ROC-AUC</h4>
+                <div class="metric-value">0.92</div>
+                <p>Área bajo la Curva ROC</p>
+            </div>
+        </div>
+        
         <div class="chart-container">
+            <canvas id="heartChart"></canvas>
+        </div>
+        
+        <h3>Curva ROC - Enfermedades Cardíacas</h3>
+        <div class="roc-container">
             <canvas id="heartROC"></canvas>
         </div>
-        <p class="roc-note">Un AUC de 0.92 indica un excelente rendimiento del modelo para distinguir entre pacientes con y sin enfermedades cardíacas.</p>
     </section>
 
     <!-- Happiness Dataset -->
@@ -256,65 +335,294 @@
             <div class="dataset-icon">&#9786;</div>
             <div>
                 <h2>Dataset: World Happiness Report</h2>
-                <p>Clasificación binaria de felicidad (países felices vs no felices)</p>
+                <p>Predicción del índice de felicidad y clasificación binaria</p>
             </div>
         </div>
         
+        <h3>Métricas de Regresión</h3>
         <div class="metrics-grid">
             <div class="metric-card">
-                <h3>ROC-AUC</h3>
-                <div class="metric-value">0.98</div>
-                <p>Capacidad de discriminación excepcional</p>
+                <h4>Regresión Lineal - MSE</h4>
+                <div class="metric-value">0.28</div>
+                <p>Error Cuadrático Medio</p>
             </div>
             <div class="metric-card">
-                <h3>Accuracy</h3>
+                <h4>Regresión Lineal - R²</h4>
+                <div class="metric-value">0.75</div>
+                <p>Coeficiente de Determinación</p>
+            </div>
+            <div class="metric-card">
+                <h4>Regresión Polinomial - MSE</h4>
+                <div class="metric-value">0.24</div>
+                <p>Error Cuadrático Medio</p>
+            </div>
+            <div class="metric-card">
+                <h4>Regresión Polinomial - R²</h4>
+                <div class="metric-value">0.78</div>
+                <p>Coeficiente de Determinación</p>
+            </div>
+        </div>
+        
+        <h3>Métricas de Clasificación (Regresión Logística)</h3>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h4>Accuracy</h4>
                 <div class="metric-value">0.93</div>
-                <p>Precisión general del modelo</p>
+                <p>Precisión General</p>
             </div>
             <div class="metric-card">
-                <h3>F1-Score</h3>
-                <div class="metric-value">0.94</div>
-                <p>Balance entre precisión y exhaustividad</p>
+                <h4>Precision</h4>
+                <div class="metric-value">0.95</div>
+                <p>Exactitud en Predicciones Positivas</p>
             </div>
+            <div class="metric-card">
+                <h4>Recall</h4>
+                <div class="metric-value">0.92</div>
+                <p>Sensibilidad</p>
+            </div>
+            <div class="metric-card">
+                <h4>F1-Score</h4>
+                <div class="metric-value">0.94</div>
+                <p>Media Armónica</p>
+            </div>
+            <div class="metric-card">
+                <h4>ROC-AUC</h4>
+                <div class="metric-value">0.98</div>
+                <p>Área bajo la Curva ROC</p>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <canvas id="happinessChart"></canvas>
         </div>
         
         <h3>Curva ROC - Felicidad</h3>
-        <div class="chart-container">
+        <div class="roc-container">
             <canvas id="happinessROC"></canvas>
         </div>
-        <p class="roc-note">Un AUC de 0.98 es excepcional, indicando que el modelo puede distinguir casi perfectamente entre países felices y no felices.</p>
     </section>
 
-    <!-- Comparativa de curvas ROC -->
-    <section class="conclusion">
-        <h2>Comparativa de Curvas ROC</h2>
+    <!-- Comparativa de modelos -->
+    <section class="comparison-section">
+        <h2>Comparativa de Rendimiento entre Modelos</h2>
+        
+        <div class="model-comparison">
+            <div class="model-card">
+                <h3>Regresión Lineal</h3>
+                <p>Mejor rendimiento en dataset de Felicidad (R² = 0.75)</p>
+                <p>Peor rendimiento en dataset de Diabetes (R² = 0.26)</p>
+                <p>Modelo más simple pero efectivo para relaciones lineales claras</p>
+            </div>
+            <div class="model-card">
+                <h3>Regresión Polinomial</h3>
+                <p>Mejora consistentemente sobre la regresión lineal en todos los datasets</p>
+                <p>Mayor ganancia en dataset de Enfermedades Cardíacas (+0.16 en R²)</p>
+                <p>Captura relaciones no lineales pero requiere más recursos computacionales</p>
+            </div>
+            <div class="model-card">
+                <h3>Regresión Logística</h3>
+                <p>Excelente para clasificación binaria en todos los datasets</p>
+                <p>Mejor rendimiento en dataset de Felicidad (Accuracy = 0.93, AUC = 0.98)</p>
+                <p>Proporciona probabilidades y umbrales ajustables para optimizar precision/recall</p>
+            </div>
+        </div>
         
         <div class="chart-container">
+            <canvas id="comparisonChart"></canvas>
+        </div>
+        
+        <h3>Comparativa de Curvas ROC</h3>
+        <div class="roc-container">
             <canvas id="comparisonROC"></canvas>
         </div>
         
+        <h3>Hallazgos Clave</h3>
         <div class="key-findings">
             <div class="finding">
-                <h3>Interpretación de las curvas ROC</h3>
+                <h4>Rendimiento por Dataset</h4>
+                <p>El dataset de Felicidad muestra el mejor rendimiento general, seguido por Enfermedades Cardíacas y Diabetes. Esto sugiere que los predictores de felicidad son más claros y consistentes que los indicadores médicos.</p>
+            </div>
+            <div class="finding">
+                <h4>Ventaja de Modelos No Lineales</h4>
+                <p>La regresión polinomial supera consistentemente a la regresión lineal, especialmente en datasets médicos donde las relaciones entre variables son complejas y no lineales.</p>
+            </div>
+            <div class="finding">
+                <h4>Efectividad de Clasificación</h4>
+                <p>La regresión logística demuestra ser altamente efectiva para problemas de clasificación binaria, con métricas sólidas en todos los datasets, especialmente en AUC-ROC.</p>
+            </div>
+            <div class="finding">
+                <h4>Interpretación de las curvas ROC</h4>
                 <p>Cuanto más se acerque la curva a la esquina superior izquierda, mejor será el rendimiento del modelo. Un modelo perfecto tendría un AUC de 1.0, mientras que un modelo aleatorio seguiría la línea diagonal (AUC = 0.5).</p>
-            </div>
-            <div class="finding">
-                <h3>Rendimiento por Dataset</h3>
-                <p>El dataset de Felicidad muestra el mejor rendimiento (AUC=0.98), seguido por Enfermedades Cardíacas (AUC=0.92) y Diabetes (AUC=0.83). Esto sugiere que predecir felicidad nacional es más straightforward que diagnosticar enfermedades.</p>
-            </div>
-            <div class="finding">
-                <h3>Implicaciones prácticas</h3>
-                <p>Los modelos con AUC > 0.9 se consideran excelentes para aplicaciones clínicas. El modelo de diabetes, aunque bueno, podría beneficiarse de más características o técnicas avanzadas para mejorar su rendimiento.</p>
             </div>
         </div>
     </section>
 
     <footer>
-        <p>Análisis de Modelos Supervisados - Curvas ROC para Diabetes, Heart Disease y World Happiness Report</p>
-        <p>Técnica: Regresión Logística con evaluación ROC-AUC</p>
+        <p>Análisis de Modelos Supervisados - Datasets: Diabetes, Heart Disease y World Happiness Report</p>
+        <p>Técnicas: Regresión Lineal, Regresión Polinomial y Regresión Logística</p>
     </footer>
 
     <script>
+        // Gráfico para Diabetes
+        const diabetesCtx = document.getElementById('diabetesChart').getContext('2d');
+        new Chart(diabetesCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Regresión Lineal', 'Regresión Polinomial', 'Regresión Logística'],
+                datasets: [{
+                    label: 'Rendimiento (R²/Accuracy)',
+                    data: [0.26, 0.28, 0.76],
+                    backgroundColor: ['#e74c3c', '#e74c3c', '#e74c3c'],
+                    borderColor: ['#c0392b', '#c0392b', '#c0392b'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1.0,
+                        title: {
+                            display: true,
+                            text: 'Métrica de Rendimiento'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Rendimiento de Modelos en Dataset de Diabetes'
+                    }
+                }
+            }
+        });
+
+        // Gráfico para Heart Disease
+        const heartCtx = document.getElementById('heartChart').getContext('2d');
+        new Chart(heartCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Regresión Lineal', 'Regresión Polinomial', 'Regresión Logística'],
+                datasets: [{
+                    label: 'Rendimiento (R²/Accuracy)',
+                    data: [0.42, 0.58, 0.87],
+                    backgroundColor: ['#2ecc71', '#2ecc71', '#2ecc71'],
+                    borderColor: ['#27ae60', '#27ae60', '#27ae60'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1.0,
+                        title: {
+                            display: true,
+                            text: 'Métrica de Rendimiento'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Rendimiento de Modelos en Dataset de Enfermedades Cardíacas'
+                    }
+                }
+            }
+        });
+
+        // Gráfico para Happiness
+        const happinessCtx = document.getElementById('happinessChart').getContext('2d');
+        new Chart(happinessCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Regresión Lineal', 'Regresión Polinomial', 'Regresión Logística'],
+                datasets: [{
+                    label: 'Rendimiento (R²/Accuracy)',
+                    data: [0.75, 0.78, 0.93],
+                    backgroundColor: ['#f39c12', '#f39c12', '#f39c12'],
+                    borderColor: ['#e67e22', '#e67e22', '#e67e22'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1.0,
+                        title: {
+                            display: true,
+                            text: 'Métrica de Rendimiento'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Rendimiento de Modelos en Dataset de Felicidad'
+                    }
+                }
+            }
+        });
+
+        // Gráfico comparativo
+        const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+        new Chart(comparisonCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Diabetes', 'Enfermedades Cardíacas', 'Felicidad'],
+                datasets: [
+                    {
+                        label: 'Regresión Lineal (R²)',
+                        data: [0.26, 0.42, 0.75],
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Regresión Polinomial (R²)',
+                        data: [0.28, 0.58, 0.78],
+                        backgroundColor: 'rgba(155, 89, 182, 0.7)',
+                        borderColor: 'rgba(155, 89, 182, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Regresión Logística (Accuracy)',
+                        data: [0.76, 0.87, 0.93],
+                        backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                        borderColor: 'rgba(46, 204, 113, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 1.0,
+                        title: {
+                            display: true,
+                            text: 'Valor de Métrica'
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Comparativa de Rendimiento entre Modelos y Datasets'
+                    }
+                }
+            }
+        });
+
         // Datos para las curvas ROC (estos valores son aproximaciones basadas en los AUC reportados)
         
         // Curva ROC para Diabetes (AUC: 0.83)
